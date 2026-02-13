@@ -22,13 +22,13 @@ func main() {
 			&cli.StringFlag{
 				Name:        "download",
 				Aliases:     []string{"d"},
-				Usage:       "Download a song/playlist",
+				Usage:       "download a song/playlist",
 				Destination: &song_url,
 			},
 			&cli.StringFlag{
 				Name: "output",
 				Aliases: []string{"o"},
-				Usage: "Set output folder",
+				Usage: "set output folder",
 				Destination: &output_folder,
 			},
 		},

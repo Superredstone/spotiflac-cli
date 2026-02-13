@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/Superredstone/spotiflac-cli/app"
 )
@@ -36,11 +38,19 @@ type MetadataPlaylist struct {
 }
 
 type MetadataPlaylistInfo struct {
-	Owner MetadataPlaylistOwner `json:"owner"`
+	Owner  MetadataPlaylistOwner  `json:"owner"`
+	Tracks MetadataPlaylistTracks `json:"tracks"`
+	Cover  string                 `json:"cover"`
+}
+
+type MetadataPlaylistTracks struct {
+	Total int `json:"total"`
 }
 
 type MetadataPlaylistOwner struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`         // Playlist name, this makes no sense
+	Owner  string `json:"display_name"` // Playlist owner
+	Images string `json:"images"`
 }
 
 func GetMetadata[T MetadataPlaylist | MetadataSong](application *app.App, url string) (T, error) {
@@ -63,5 +73,50 @@ func GetMetadata[T MetadataPlaylist | MetadataSong](application *app.App, url st
 	}
 
 	return result, nil
+}
+
+func PrintMetadata(application *app.App, url string) error {
+	switch GetUrlType(url) {
+	case UrlTypeTrack:
+		metadata, err := GetMetadata[MetadataSong](application, url)
+		if err != nil {
+			return err
+		}
+
+		unformatted := `Name: %s
+Artist: %s
+Album: %s
+Release date: %s
+Images: %s`
+		msg := fmt.Sprintf(unformatted,
+			metadata.Track.Name,
+			metadata.Track.Artists,
+			metadata.Track.AlbumName,
+			metadata.Track.ReleaseDate,
+			metadata.Track.Images)
+		fmt.Println(msg)
+
+		return nil
+	case UrlTypePlaylist:
+		metadata, err := GetMetadata[MetadataPlaylist](application, url)
+		if err != nil {
+			return err
+		}
+
+		unformatted := `Name: %s
+Owner: %s
+Tracks: %d
+Cover: %s`
+		msg := fmt.Sprintf(unformatted,
+			metadata.Info.Owner.Name,
+			metadata.Info.Owner.Owner,
+			metadata.Info.Tracks.Total,
+			metadata.Info.Cover)
+		fmt.Println(msg)
+
+		return nil
+	}
+
+	return errors.New("Invalid URL.")
 }
 

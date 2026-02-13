@@ -39,6 +39,15 @@ func main() {
 					return err
 				},
 			},
+			&cli.Command{
+				Name:    "metadata",
+				Aliases: []string{"m"},
+				Usage:   "view song metadata",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					url := cmd.Args().First()
+					return pkg.PrintMetadata(application, url)
+				},
+			},
 		},
 	}
 	if err := cmd.Run(context.Background(), os.Args); err != nil {

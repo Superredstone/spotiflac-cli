@@ -12,7 +12,7 @@ import (
 
 const (
 	DEFAULT_DOWNLOAD_SERVICE       = "tidal"
-	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "downloads/"
+	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "."
 )
 
 type MetadataSong struct {

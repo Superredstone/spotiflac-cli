@@ -53,6 +53,8 @@
             packages = with pkgs; [
               # go (version is specified by overlay)
               go
+              # Required for .deb build
+              dpkg
             ];
           };
         }

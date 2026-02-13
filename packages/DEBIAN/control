@@ -1,0 +1,6 @@
+Package: spotiflac-cli
+Version: 1.0.0
+Architecture: amd64
+Maintainer: Patrick Canal <patrickcanal3@gmail.com>
+Description: Spotify downloader
+   Spotify downloader with playlist sync in mind.

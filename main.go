@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	var song_url, output_folder string
+	var output_folder string
 
 	application := app.NewApp()
 
@@ -20,23 +20,25 @@ func main() {
 		EnableShellCompletion: true,
 		DefaultCommand:        "help",
 		Usage:                 "Spotify downloader with playlist sync in mind.",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "download",
-				Aliases:     []string{"d"},
-				Usage:       "download a song/playlist",
-				Destination: &song_url,
+		Commands: []*cli.Command{
+			&cli.Command{
+				Name:    "download",
+				Aliases: []string{"d"},
+				Usage:   "download a song/playlist",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "output",
+						Aliases:     []string{"o"},
+						Usage:       "set output folder",
+						Destination: &output_folder,
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					song_url := cmd.Args().First()
+					err := pkg.Download(application, song_url, output_folder)
+					return err
+				},
 			},
-			&cli.StringFlag{
-				Name:        "output",
-				Aliases:     []string{"o"},
-				Usage:       "set output folder",
-				Destination: &output_folder,
-			},
-		},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			err := pkg.Download(application, song_url, output_folder)
-			return err
 		},
 	}
 	if err := cmd.Run(context.Background(), os.Args); err != nil {

@@ -1,8 +1,10 @@
 # spotiflac-cli
 
-Spotify downloader with playlist sync in mind.
+<p align="center">
+  <img src="./assets/logo.png" width=300 height=300/>
+</p>
 
-![spotiflac-cli](./assets/logo.png)
+Spotify downloader with playlist sync in mind.
 
 ## Usage 
 ```bash

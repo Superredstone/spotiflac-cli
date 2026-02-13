@@ -40,7 +40,16 @@ type MetadataTrack struct {
 }
 
 type MetadataPlaylist struct {
-	TrackList []MetadataTrack `json:"track_list"`
+	TrackList []MetadataTrack      `json:"track_list"`
+	Info      MetadataPlaylistInfo `json:"playlist_info"`
+}
+
+type MetadataPlaylistInfo struct {
+	Owner MetadataPlaylistOwner `json:"owner"`
+}
+
+type MetadataPlaylistOwner struct {
+	Name string `json:"name"`
 }
 
 func Download(application *app.App, url string, output_folder string) error {
@@ -81,15 +90,16 @@ func Download(application *app.App, url string, output_folder string) error {
 			fmt.Println("[" + strconv.Itoa(idx+1) + "/" + trackListSize + "] " + track.Name + " - " + track.Artists)
 
 			downloadRequest := app.DownloadRequest{
-				Service:     DEFAULT_DOWNLOAD_SERVICE,
-				TrackName:   track.Name,
-				ArtistName:  track.Artists,
-				AlbumName:   track.AlbumName,
-				AlbumArtist: track.AlbumArtist,
-				ReleaseDate: track.ReleaseDate,
-				CoverURL:    track.Images,
-				OutputDir:   output_folder,
-				SpotifyID:   track.SpotifyID,
+				Service:      DEFAULT_DOWNLOAD_SERVICE,
+				TrackName:    track.Name,
+				ArtistName:   track.Artists,
+				AlbumName:    track.AlbumName,
+				AlbumArtist:  track.AlbumArtist,
+				ReleaseDate:  track.ReleaseDate,
+				CoverURL:     track.Images,
+				OutputDir:    output_folder,
+				SpotifyID:    track.SpotifyID,
+				PlaylistName: metadata.Info.Owner.Name,
 			}
 
 			application.DownloadTrack(downloadRequest)

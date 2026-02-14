@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	var output_folder string
+	var output_folder, service string
 
 	application := app.NewApp()
 
@@ -32,10 +32,16 @@ func main() {
 						Usage:       "set output folder",
 						Destination: &output_folder,
 					},
+					&cli.StringFlag{
+						Name:        "service",
+						Aliases:     []string{"s"},
+						Usage:       "set service to tidal/amazon/qobuz (FFmpeg is required for amazon and qobuz)",
+						Destination: &service,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
-					err := pkg.Download(application, song_url, output_folder)
+					err := pkg.Download(application, song_url, output_folder, service)
 					return err
 				},
 			},

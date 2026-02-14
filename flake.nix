@@ -55,6 +55,8 @@
               go
               # Required for .deb build
               dpkg
+
+              ffmpeg_7
             ];
           };
         }
@@ -66,6 +68,10 @@
             inherit pname version;
             src = ./.;
             vendorHash = "sha256-EpGgfiCqJjHEOphV2x8FmXeIFls7eq2NVxb/or4NLUo=";
+
+            dependencies = with pkgs; [
+              ffmpeg_7
+            ];
 
             nativeBuildInputs = with pkgs; [
               installShellFiles

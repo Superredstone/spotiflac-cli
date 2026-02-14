@@ -65,7 +65,10 @@ func Download(application *app.App, url string, output_folder string) error {
 				PlaylistName: metadata.Info.Owner.Name,
 			}
 
-			application.DownloadTrack(downloadRequest)
+			_, err = application.DownloadTrack(downloadRequest)
+			if err != nil { 
+				fmt.Println("Unable to download " + track.Name + " - " + track.Artists)
+			}
 		}
 
 		return nil

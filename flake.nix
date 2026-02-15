@@ -51,7 +51,9 @@
         }:
         {
           default = pkgs.buildGoModule (finalAttrs: {
-            inherit pname version;
+            pname = "spotiflac-cli";
+            version = "2.0.0";
+
             src = ./.;
             vendorHash = "sha256-EpGgfiCqJjHEOphV2x8FmXeIFls7eq2NVxb/or4NLUo=";
 

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Superredstone/spotiflac-cli/app"
+	"spotiflac-cli/app"
 )
 
 type MetadataSong struct {
@@ -30,6 +30,7 @@ type MetadataTrack struct {
 	Publisher    string `json:"publisher"`
 	Plays        string `json:"plays"`
 	IsExplicit   bool   `json:"is_explicit"`
+	ISRC         string `json:"isrc"`
 }
 
 type MetadataPlaylist struct {

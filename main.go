@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	var output_folder, service string
+	var outputFolder, service string
 
 	app := lib.NewApp()
 
@@ -29,7 +29,7 @@ func main() {
 						Name:        "output",
 						Aliases:     []string{"o"},
 						Usage:       "set output folder",
-						Destination: &output_folder,
+						Destination: &outputFolder,
 					},
 					&cli.StringFlag{
 						Name:        "service",
@@ -40,7 +40,7 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
-					err := pkg.Download(app, song_url, output_folder, service)
+					err := app.Download(song_url, outputFolder, service)
 					return err
 				},
 			},
@@ -50,7 +50,7 @@ func main() {
 				Usage:   "view song metadata",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					url := cmd.Args().First()
-					return pkg.PrintMetadata(app, url)
+					return app.PrintMetadata(url)
 				},
 			},
 		},

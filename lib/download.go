@@ -1,4 +1,4 @@
-package pkg
+package lib
 
 import (
 	"errors"
@@ -11,24 +11,37 @@ const (
 	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "."
 )
 
-func Download(app *App, url string, output_folder string, service string) error {
-	if output_folder == "" {
-		output_folder = DEFAULT_DOWNLOAD_OUTPUT_FOLDER
+type AvailableServices int
+
+const (
+	AvailableServicesTidal = iota
+)
+
+func ParseAvailableServices(service string) (AvailableServices, error) {
+	switch service {
+	case "tidal":
+		return AvailableServicesTidal, nil
+		break
+	}
+	return AvailableServicesTidal, errors.New("Invalid service.")
+}
+
+type DownloadRequest struct {
+	Service AvailableServices
+}
+
+func (app *App) Download(url string, outputFolder string, serviceString string) error {
+	if outputFolder == "" {
+		outputFolder = DEFAULT_DOWNLOAD_OUTPUT_FOLDER
 	}
 
-	if service == "" {
-		service = DEFAULT_DOWNLOAD_SERVICE
+	if serviceString == "" {
+		serviceString = DEFAULT_DOWNLOAD_SERVICE
 	}
 
-	if service == "amazon" || service == "qobuz" {
-		isInstalled, err := app.CheckFFmpegInstalled()
-		if err != nil {
-			return err
-		}
-
-		if !isInstalled {
-			return errors.New("FFmpeg is not installed.")
-		}
+	service, err := ParseAvailableServices(serviceString)
+	if err != nil {
+		return err
 	}
 
 	url_type := GetUrlType(url)
@@ -41,7 +54,7 @@ func Download(app *App, url string, output_folder string, service string) error 
 		}
 
 		track := metadata.Track
-		downloadRequest := app.DownloadRequest{
+		downloadRequest := DownloadRequest{
 			Service:     service,
 			TrackName:   track.Name,
 			ArtistName:  track.Artists,
@@ -49,7 +62,7 @@ func Download(app *App, url string, output_folder string, service string) error 
 			AlbumArtist: track.AlbumArtist,
 			ReleaseDate: track.ReleaseDate,
 			CoverURL:    track.Images,
-			OutputDir:   output_folder,
+			OutputDir:   outputFolder,
 			SpotifyID:   track.SpotifyID,
 		}
 
@@ -65,7 +78,7 @@ func Download(app *App, url string, output_folder string, service string) error 
 		for idx, track := range metadata.TrackList {
 			fmt.Println("[" + strconv.Itoa(idx+1) + "/" + trackListSize + "] " + track.Name + " - " + track.Artists)
 
-			downloadRequest := app.DownloadRequest{
+			downloadRequest := DownloadRequest{
 				Service:      service,
 				TrackName:    track.Name,
 				ArtistName:   track.Artists,
@@ -73,7 +86,7 @@ func Download(app *App, url string, output_folder string, service string) error 
 				AlbumArtist:  track.AlbumArtist,
 				ReleaseDate:  track.ReleaseDate,
 				CoverURL:     track.Images,
-				OutputDir:    output_folder,
+				OutputDir:    outputFolder,
 				SpotifyID:    track.SpotifyID,
 				PlaylistName: metadata.Info.Owner.Name,
 			}
@@ -88,4 +101,8 @@ func Download(app *App, url string, output_folder string, service string) error 
 	}
 
 	return errors.New("Invalid URL.")
+}
+
+func (app *App) DownloadTrack(dr DownloadRequest) {
+
 }

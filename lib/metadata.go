@@ -1,4 +1,4 @@
-package pkg
+package lib
 
 import (
 	"encoding/json"
@@ -73,7 +73,7 @@ func GetMetadata[T MetadataPlaylist | MetadataSong](app *App, url string) (T, er
 	return result, nil
 }
 
-func PrintMetadata(app *App, url string) error {
+func (app *App) PrintMetadata(url string) error {
 	switch GetUrlType(url) {
 	case UrlTypeTrack:
 		metadata, err := GetMetadata[MetadataSong](app, url)
@@ -117,4 +117,3 @@ Cover: %s`
 
 	return errors.New("Invalid URL.")
 }
-

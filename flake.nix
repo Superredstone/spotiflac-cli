@@ -7,8 +7,6 @@
     { self, ... }@inputs:
 
     let
-      pname = "spotiflac-cli";
-      version = "7.0.9";
       goVersion = 24; # Change this to update the whole stack
 
       supportedSystems = [
@@ -28,18 +26,6 @@
             };
           }
         );
-
-      pkgs = import inputs.nixpkgs {
-        system = "x86_64-linux";
-        overlays = [ inputs.self.overlays.default ];
-      };
-
-      spotiflac = pkgs.fetchFromGitHub {
-        owner = "afkarxyz";
-        repo = "SpotiFLAC";
-        tag = "v${version}";
-        hash = "sha256-VHYof17C+eRoZfssXRQpbB8GXlcfPhyRiWltM6yDqe0=";
-      };
     in
     {
       overlays.default = final: prev: {
@@ -55,8 +41,6 @@
               go
               # Required for .deb build
               dpkg
-
-              ffmpeg_7
             ];
           };
         }
@@ -64,16 +48,12 @@
       packages = forEachSupportedSystem (
         {
           pkgs,
-          # Set this to true to ship with FFmpeg which is required to download songs from amazon and qobuz
-          withAdditionalServices ? false,
         }:
         {
           default = pkgs.buildGoModule (finalAttrs: {
             inherit pname version;
             src = ./.;
             vendorHash = "sha256-EpGgfiCqJjHEOphV2x8FmXeIFls7eq2NVxb/or4NLUo=";
-
-            dependencies = if withAdditionalServices then [ pkgs.ffmpeg_7 ] else [ ];
 
             nativeBuildInputs = with pkgs; [
               installShellFiles
@@ -82,13 +62,6 @@
             subPackages = [
               "."
             ];
-
-            postPatch = ''
-              cp -r ${spotiflac} ./SpotiFLAC/
-              sed -i "s/git clone https:\/\/github.com\/afkarxyz\/SpotiFLAC.git//g" ./tools/fetch_spotiflac_backend.sh
-              sed -i "s/rm -rf SpotiFLAC//g" ./tools/fetch_spotiflac_backend.sh
-              ./tools/fetch_spotiflac_backend.sh
-            '';
 
             postInstall = ''
               installShellCompletion --cmd spotiflac-cli \

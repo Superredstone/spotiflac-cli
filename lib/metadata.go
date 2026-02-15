@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
-	"github.com/Superredstone/spotiflac-cli/app"
 )
 
 type MetadataSong struct {
@@ -53,7 +51,7 @@ type MetadataPlaylistOwner struct {
 	Images string `json:"images"`
 }
 
-func GetMetadata[T MetadataPlaylist | MetadataSong](application *app.App, url string) (T, error) {
+func GetMetadata[T MetadataPlaylist | MetadataSong](app *App, url string) (T, error) {
 	var result T
 
 	metadataRequest := app.SpotifyMetadataRequest{
@@ -62,7 +60,7 @@ func GetMetadata[T MetadataPlaylist | MetadataSong](application *app.App, url st
 		Timeout: 5,
 	}
 
-	metadata, err := application.GetSpotifyMetadata(metadataRequest)
+	metadata, err := app.GetSpotifyMetadata(metadataRequest)
 	if err != nil {
 		return result, err
 	}
@@ -75,10 +73,10 @@ func GetMetadata[T MetadataPlaylist | MetadataSong](application *app.App, url st
 	return result, nil
 }
 
-func PrintMetadata(application *app.App, url string) error {
+func PrintMetadata(app *App, url string) error {
 	switch GetUrlType(url) {
 	case UrlTypeTrack:
-		metadata, err := GetMetadata[MetadataSong](application, url)
+		metadata, err := GetMetadata[MetadataSong](app, url)
 		if err != nil {
 			return err
 		}
@@ -98,7 +96,7 @@ Images: %s`
 
 		return nil
 	case UrlTypePlaylist:
-		metadata, err := GetMetadata[MetadataPlaylist](application, url)
+		metadata, err := GetMetadata[MetadataPlaylist](app, url)
 		if err != nil {
 			return err
 		}

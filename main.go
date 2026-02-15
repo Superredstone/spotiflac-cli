@@ -5,15 +5,14 @@ import (
 	"log"
 	"os"
 
-	"github.com/Superredstone/spotiflac-cli/app"
-	"github.com/Superredstone/spotiflac-cli/pkg"
+	"github.com/Superredstone/spotiflac-cli/lib"
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
 	var output_folder, service string
 
-	application := app.NewApp()
+	app := lib.NewApp()
 
 	cmd := &cli.Command{
 		Name:                  "spotiflac-cli",
@@ -41,7 +40,7 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
-					err := pkg.Download(application, song_url, output_folder, service)
+					err := pkg.Download(app, song_url, output_folder, service)
 					return err
 				},
 			},
@@ -51,7 +50,7 @@ func main() {
 				Usage:   "view song metadata",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					url := cmd.Args().First()
-					return pkg.PrintMetadata(application, url)
+					return pkg.PrintMetadata(app, url)
 				},
 			},
 		},

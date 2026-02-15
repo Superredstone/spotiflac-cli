@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-
-	"github.com/Superredstone/spotiflac-cli/app"
 )
 
 const (
@@ -13,7 +11,7 @@ const (
 	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "."
 )
 
-func Download(application *app.App, url string, output_folder string, service string) error {
+func Download(app *App, url string, output_folder string, service string) error {
 	if output_folder == "" {
 		output_folder = DEFAULT_DOWNLOAD_OUTPUT_FOLDER
 	}
@@ -23,7 +21,7 @@ func Download(application *app.App, url string, output_folder string, service st
 	}
 
 	if service == "amazon" || service == "qobuz" {
-		isInstalled, err := application.CheckFFmpegInstalled()
+		isInstalled, err := app.CheckFFmpegInstalled()
 		if err != nil {
 			return err
 		}
@@ -37,7 +35,7 @@ func Download(application *app.App, url string, output_folder string, service st
 
 	switch url_type {
 	case UrlTypeTrack:
-		metadata, err := GetMetadata[MetadataSong](application, url)
+		metadata, err := GetMetadata[MetadataSong](app, url)
 		if err != nil {
 			return err
 		}
@@ -55,10 +53,10 @@ func Download(application *app.App, url string, output_folder string, service st
 			SpotifyID:   track.SpotifyID,
 		}
 
-		_, err = application.DownloadTrack(downloadRequest)
+		_, err = app.DownloadTrack(downloadRequest)
 		return err
 	case UrlTypePlaylist:
-		metadata, err := GetMetadata[MetadataPlaylist](application, url)
+		metadata, err := GetMetadata[MetadataPlaylist](app, url)
 		if err != nil {
 			return err
 		}
@@ -80,7 +78,7 @@ func Download(application *app.App, url string, output_folder string, service st
 				PlaylistName: metadata.Info.Owner.Name,
 			}
 
-			_, err = application.DownloadTrack(downloadRequest)
+			_, err = app.DownloadTrack(downloadRequest)
 			if err != nil {
 				fmt.Println("Unable to download " + track.Name + " - " + track.Artists)
 			}

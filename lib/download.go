@@ -30,7 +30,12 @@ func (app *App) Download(url string, outputFolder string, serviceString string) 
 		serviceString = DEFAULT_DOWNLOAD_SERVICE
 	}
 
-	_ = GetUrlType(url)
+	_, err := app.GetMetadata(url)
+	if err != nil {
+		return err
+	}
+
+	_ = ParseUrlType(url)
 
 	return errors.New("Invalid URL.")
 }

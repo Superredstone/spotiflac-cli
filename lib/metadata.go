@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -25,9 +26,41 @@ type Metadata struct {
 }
 
 func (app *App) GetMetadata(url string) (Metadata, error) {
-	return Metadata{}, nil
+	urlType := ParseUrlType(url)
+
+	switch urlType {
+	case UrlTypeTrack:
+		app.GetTrackMetadata(url)
+	}
+
+	return Metadata{}, errors.New("Invalid URL.")
+}
+
+func (app *App) GetTrackMetadata(url string) error {
+	client := NewSpotifyClient()
+
+	err := client.Initialize()
+	if err != nil {
+		return errors.New("Unable to fetch Spotify metadata.")
+	}
+
+	trackId, err := ParseTrackId(url)
+	if err != nil {
+		return err
+	}
+
+	payload := BuildSpotifyReqPayloadTrack(trackId)
+
+	rawMetadata, err := client.Query(payload)
+	if err != nil {
+		return err
+	}
+	a, err := json.Marshal(rawMetadata)
+	println(string(a))
+
+	return nil
 }
 
 func (app *App) PrintMetadata(url string) error {
-	return errors.New("Invalid URL.")
+	return errors.New("Unimplemented.")
 }

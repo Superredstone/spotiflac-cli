@@ -11,21 +11,6 @@ const (
 	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "."
 )
 
-type AvailableServices int
-
-const (
-	AvailableServicesTidal = iota
-)
-
-func ParseAvailableServices(service string) (AvailableServices, error) {
-	switch service {
-	case "tidal":
-		return AvailableServicesTidal, nil
-		break
-	}
-	return AvailableServicesTidal, errors.New("Invalid service.")
-}
-
 type DownloadRequest struct {
 	Service AvailableServices
 }

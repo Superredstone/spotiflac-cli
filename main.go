@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"spotiflac-cli/app"
-	"spotiflac-cli/pkg"
+	"github.com/Superredstone/spotiflac-cli/app"
+	"github.com/Superredstone/spotiflac-cli/pkg"
 	"github.com/urfave/cli/v3"
 )
 

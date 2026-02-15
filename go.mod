@@ -1,8 +1,8 @@
-module spotiflac-cli
+module github.com/Superredstone/spotiflac-cli
 
 go 1.24.4
 
-
+replace github.com/Superredstone/spotiflac-cli/app => ./app
 
 require (
 	github.com/bogem/id3v2/v2 v2.1.4 // indirect

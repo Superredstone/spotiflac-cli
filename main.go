@@ -13,6 +13,7 @@ func main() {
 	var outputFolder, service string
 
 	app := lib.NewApp()
+	app.Init()
 
 	cmd := &cli.Command{
 		Name:                  "spotiflac-cli",

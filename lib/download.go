@@ -39,10 +39,22 @@ func (app *App) Download(url string, outputFolder string, serviceString string) 
 		// }
 
 		// println(metadata.Data.TrackUnion.Id)
-		_, err := app.ConvertSongUrl(url)
+		songlink, err := app.ConvertSongUrl(url)
 		if err != nil {
 			return err 
 		}
+
+		tidalId, err := app.GetTidalIdFromSonglink(songlink)
+		if err != nil {
+			return err
+		}
+
+		// err = app.DownloadFromTidal(tidalId)
+		url, err = app.GetTidalDownloadUrl(tidalId, "LOSSLESS")
+		if err != nil {
+			return err
+		}
+		println(url)
 	}
 
 	return nil

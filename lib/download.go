@@ -33,9 +33,15 @@ func (app *App) Download(url string, outputFolder string, serviceString string) 
 
 	switch urlType {
 	case UrlTypeTrack:
-		_, err := app.GetTrackMetadata(url)
+		// metadata, err := app.GetTrackMetadata(url)
+		// if err != nil {
+			// return err
+		// }
+
+		// println(metadata.Data.TrackUnion.Id)
+		_, err := app.ConvertSongUrl(url)
 		if err != nil {
-			return err
+			return err 
 		}
 	}
 

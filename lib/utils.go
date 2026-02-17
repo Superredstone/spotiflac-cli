@@ -31,5 +31,10 @@ func ParseTrackId(url string) (string, error) {
 		return "", errors.New("Invalid URL.")
 	}
 
-	return tmp[len(tmp)-1], nil
+	tmp2 := strings.Split(tmp[len(tmp)-1], "?")
+	if len(tmp2) == 0 {
+		return tmp[len(tmp)-1], nil
+	}
+
+	return tmp2[0], nil
 }

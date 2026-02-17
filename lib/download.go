@@ -1,9 +1,5 @@
 package lib
 
-import (
-	"errors"
-)
-
 const (
 	DEFAULT_DOWNLOAD_SERVICE       = "tidal"
 	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "."
@@ -30,14 +26,20 @@ func (app *App) Download(url string, outputFolder string, serviceString string) 
 		serviceString = DEFAULT_DOWNLOAD_SERVICE
 	}
 
-	_, err := app.GetMetadata(url)
+	urlType, err := ParseUrlType(url)
 	if err != nil {
 		return err
 	}
 
-	_ = ParseUrlType(url)
+	switch urlType {
+	case UrlTypeTrack:
+		_, err := app.GetTrackMetadata(url)
+		if err != nil {
+			return err
+		}
+	}
 
-	return errors.New("Invalid URL.")
+	return nil
 }
 
 func (app *App) DownloadTrack(dr DownloadRequest) (bool, error) {

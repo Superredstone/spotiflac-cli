@@ -59,7 +59,12 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 		return err
 	}
 
-	outputFile, err = BuildFileOutput(outputFile, fileName, metadata)
+	extension, err := GetFormatFromQuality(quality)
+	if err != nil {
+		return err
+	}
+
+	outputFile, err = BuildFileOutput(outputFile, fileName, extension, metadata)
 	if err != nil {
 		return err
 	}
@@ -73,6 +78,8 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 }
 
 func (app *App) DownloadFromUrl(url string, outputFilePath string) error {
+	app.log("Downloading " + outputFilePath)
+
 	outputFile, err := os.Create(outputFilePath)
 	if err != nil {
 		return err
@@ -89,6 +96,8 @@ func (app *App) DownloadFromUrl(url string, outputFilePath string) error {
 	if err != nil {
 		return err
 	}
+
+	app.log("Download completed")
 
 	return nil
 }

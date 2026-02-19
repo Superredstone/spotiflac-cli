@@ -56,6 +56,14 @@ func main() {
 				},
 			},
 		},
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "verbose",
+				Aliases: []string{"v"},
+				Usage: "verbose output",
+				Destination: &app.Verbose,
+			},
+		},
 	}
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)

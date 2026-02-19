@@ -33,6 +33,8 @@ type LinkByPlatform struct {
 func (app *App) ConvertSongUrl(url string) (SongLinkResponse, error) {
 	var result SongLinkResponse
 
+	app.log("Searching " + url)
+
 	rawResponse, err := http.Get(SONGLINK_API_BASE_URL + url)
 	if err != nil {
 		return result, err

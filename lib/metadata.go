@@ -6,6 +6,8 @@ import (
 )
 
 func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
+	app.log("Getting metadata for " + url)
+
 	client := NewSpotifyClient()
 	var result TrackMetadata
 

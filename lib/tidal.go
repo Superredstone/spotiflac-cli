@@ -44,25 +44,6 @@ func (app *App) GetAvailableApis() []string {
 	}
 }
 
-func (app *App) DownloadFromTidal(tidalId string) error {
-	// url, err := app.GetTidalDownloadUrl(tidalId)
-	// if err != nil {
-	// return err
-	// }
-	// rawResponse, err := http.Get(tidalUrl)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer rawResponse.Body.Close()
-	//
-	// _, err = io.ReadAll(rawResponse.Body)
-	// if err != nil {
-	// 	return err
-	// }
-
-	return nil
-}
-
 type TidalAPIResponseV2 struct {
 	Version string `json:"version"`
 	Data    struct {

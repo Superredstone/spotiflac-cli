@@ -41,7 +41,7 @@ func ParseTrackId(url string) (string, error) {
 	return tmp2[0], nil
 }
 
-func BuildFileName(metadata TrackMetadata) (string, error) {
+func BuildFileName(metadata TrackMetadata, extension string) (string, error) {
 	var result string
 	var artists string
 
@@ -51,19 +51,19 @@ func BuildFileName(metadata TrackMetadata) (string, error) {
 	}
 	artists = metadata.Data.TrackUnion.FirstArtist.Items[firstArtistLen-1].Profile.Name
 
-	for _, artist := range(metadata.Data.TrackUnion.OtherArtists.Items) {
+	for _, artist := range metadata.Data.TrackUnion.OtherArtists.Items {
 		artists += ", " + artist.Profile.Name
 	}
 
-	result = fmt.Sprintf("%s - %s", metadata.Data.TrackUnion.Name, artists)
+	result = fmt.Sprintf("%s - %s.%s", metadata.Data.TrackUnion.Name, artists, extension)
 
 	return result, nil
 }
 
-func BuildFileOutput(outputFile string, fileName string, metadata TrackMetadata) (string, error) {
+func BuildFileOutput(outputFile string, fileName string, extension string, metadata TrackMetadata) (string, error) {
 	var result string
 
-	fileName, err := BuildFileName(metadata)
+	fileName, err := BuildFileName(metadata, extension)
 	if err != nil {
 		return result, err
 	}
@@ -75,4 +75,25 @@ func BuildFileOutput(outputFile string, fileName string, metadata TrackMetadata)
 	}
 
 	return result, nil
+}
+
+func (app *App) log(message string) {
+	if app.Verbose {
+		fmt.Println(message)
+	}
+}
+
+func GetFormatFromQuality(quality string) (string, error) {
+	switch quality {
+	case "LOW":
+		return "aac", nil
+	case "HIGH":
+		return "aac", nil
+	case "LOSSLESS":
+		return "flac", nil
+	case "HI_RES_LOSSLESS":
+		return "flac", nil
+	default:
+		return "", errors.New("Invalid quality.")
+	}
 }

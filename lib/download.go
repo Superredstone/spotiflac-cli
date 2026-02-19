@@ -69,6 +69,16 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 		return err
 	}
 
+	fileExists, err := FileExists(outputFile) 
+	if err != nil {
+		return err 
+	}
+
+	if fileExists {
+		app.log("File " + outputFile + " already exists")
+		return nil
+	}
+
 	err = app.DownloadFromUrl(downloadUrl, outputFile)
 	if err != nil {
 		return err

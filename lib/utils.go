@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path"
 	"strings"
 )
@@ -96,4 +97,17 @@ func GetFormatFromQuality(quality string) (string, error) {
 	default:
 		return "", errors.New("Invalid quality.")
 	}
+}
+
+func FileExists(file string) (bool, error) {
+	_, err := os.Stat(file)
+	if err == nil {
+		return true, nil
+	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+
+	return false, err
 }

@@ -2,6 +2,8 @@ module github.com/Superredstone/spotiflac-cli
 
 go 1.24.4
 
+replace github.com/Superredstone/spotiflac-cli/lib => ./lib
+
 require (
 	github.com/bogem/id3v2/v2 v2.1.4
 	github.com/pquerna/otp v1.5.0

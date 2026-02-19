@@ -44,6 +44,8 @@ func (app *App) PrintMetadata(url string) error {
 }
 
 func (app *App) EmbedMetadata(file string, metadata TrackMetadata) error {
+	app.log("Embedding metadata")
+
 	tag, err := id3v2.Open(file, id3v2.Options{Parse: true})
 	if err != nil {
 		return err

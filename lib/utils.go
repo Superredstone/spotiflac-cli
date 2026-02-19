@@ -71,7 +71,7 @@ func GetArtists(metadata TrackMetadata) (string, error) {
 	return result, nil
 }
 
-func BuildFileOutput(outputFile string, fileName string, extension string, metadata TrackMetadata) (string, error) {
+func BuildFileOutput(outputFile string, extension string, metadata TrackMetadata) (string, error) {
 	var result string
 
 	fileName, err := BuildFileName(metadata, extension)

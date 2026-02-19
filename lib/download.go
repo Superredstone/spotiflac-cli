@@ -23,12 +23,9 @@ type DownloadRequest struct {
 	SpotifyID   string
 }
 
-func (app *App) Download(url string, outputFile string, serviceString string, quality string) error {
-	var downloadUrl string
-	var fileName string
-
-	if serviceString == "" {
-		serviceString = DEFAULT_DOWNLOAD_SERVICE
+func (app *App) Download(url string, outputFile string, service string, quality string) error {
+	if service == "" {
+		service = DEFAULT_DOWNLOAD_SERVICE
 	}
 
 	urlType, err := ParseUrlType(url)
@@ -38,20 +35,28 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 
 	switch urlType {
 	case UrlTypeTrack:
-		songlink, err := app.ConvertSongUrl(url)
-		if err != nil {
+		if err := app.DownloadTrack(url, outputFile, service, quality); err != nil {
 			return err
 		}
+	}
 
-		tidalId, err := app.GetTidalIdFromSonglink(songlink)
-		if err != nil {
-			return err
-		}
+	return nil
+}
 
-		downloadUrl, err = app.GetTidalDownloadUrl(tidalId, quality)
-		if err != nil {
-			return err
-		}
+func (app *App) DownloadTrack(url string, outputFile, service string, quality string) error {
+	songlink, err := app.ConvertSongUrl(url)
+	if err != nil {
+		return err
+	}
+
+	tidalId, err := app.GetTidalIdFromSonglink(songlink)
+	if err != nil {
+		return err
+	}
+
+	downloadUrl, err := app.GetTidalDownloadUrl(tidalId, quality)
+	if err != nil {
+		return err
 	}
 
 	metadata, err := app.GetTrackMetadata(url)
@@ -64,7 +69,7 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 		return err
 	}
 
-	outputFile, err = BuildFileOutput(outputFile, fileName, extension, metadata)
+	outputFile, err = BuildFileOutput(outputFile, extension, metadata)
 	if err != nil {
 		return err
 	}

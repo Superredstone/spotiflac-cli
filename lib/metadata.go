@@ -3,6 +3,8 @@ package lib
 import (
 	"encoding/json"
 	"errors"
+
+	id3v2 "github.com/bogem/id3v2/v2"
 )
 
 func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
@@ -39,4 +41,27 @@ func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
 
 func (app *App) PrintMetadata(url string) error {
 	return errors.New("Unimplemented.")
+}
+
+func (app *App) EmbedMetadata(file string, metadata TrackMetadata) error {
+	tag, err := id3v2.Open(file, id3v2.Options{Parse: true})
+	if err != nil {
+		return err
+	}
+
+	artists, err := GetArtists(metadata)
+	if err != nil {
+		return err
+	}
+
+	tag.SetArtist(artists)
+	tag.SetTitle(metadata.Data.TrackUnion.Name)
+	tag.SetYear(string(metadata.Data.TrackUnion.AlbumOfTrack.Date.Year))
+	tag.SetAlbum(metadata.Data.TrackUnion.AlbumOfTrack.Name)
+
+	if err = tag.Save(); err != nil {
+		return err
+	}
+
+	return nil
 }

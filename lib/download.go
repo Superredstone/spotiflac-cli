@@ -69,9 +69,9 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 		return err
 	}
 
-	fileExists, err := FileExists(outputFile) 
+	fileExists, err := FileExists(outputFile)
 	if err != nil {
-		return err 
+		return err
 	}
 
 	if fileExists {
@@ -80,6 +80,11 @@ func (app *App) Download(url string, outputFile string, serviceString string, qu
 	}
 
 	err = app.DownloadFromUrl(downloadUrl, outputFile)
+	if err != nil {
+		return err
+	}
+
+	err = app.EmbedMetadata(outputFile, metadata)
 	if err != nil {
 		return err
 	}

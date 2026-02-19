@@ -44,19 +44,29 @@ func ParseTrackId(url string) (string, error) {
 
 func BuildFileName(metadata TrackMetadata, extension string) (string, error) {
 	var result string
-	var artists string
+
+	artists, err := GetArtists(metadata)
+	if err != nil {
+		return result, err
+	}
+
+	result = fmt.Sprintf("%s - %s.%s", metadata.Data.TrackUnion.Name, artists, extension)
+
+	return result, nil
+}
+
+func GetArtists(metadata TrackMetadata) (string, error) {
+	var result string
 
 	firstArtistLen := len(metadata.Data.TrackUnion.FirstArtist.Items)
 	if firstArtistLen == 0 {
 		return result, errors.New("What? This should never happen.")
 	}
-	artists = metadata.Data.TrackUnion.FirstArtist.Items[firstArtistLen-1].Profile.Name
+	result = metadata.Data.TrackUnion.FirstArtist.Items[firstArtistLen-1].Profile.Name
 
 	for _, artist := range metadata.Data.TrackUnion.OtherArtists.Items {
-		artists += ", " + artist.Profile.Name
+		result += ", " + artist.Profile.Name
 	}
-
-	result = fmt.Sprintf("%s - %s.%s", metadata.Data.TrackUnion.Name, artists, extension)
 
 	return result, nil
 }

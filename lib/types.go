@@ -59,7 +59,7 @@ type VideoAssociations struct {
 	TotalCount int64 `json:"totalCount"`
 }
 
-type AssociationsV3 struct {
+type Associations struct {
 	AudioAssociations AudioAssociations `json:"audioAssociations"`
 	VideoAssociations VideoAssociations `json:"videoAssociations"`
 }
@@ -73,12 +73,18 @@ type Duration struct {
 }
 
 type FirstArtist struct {
-	Items      []map[string]interface{} `json:"items"`
-	TotalCount int64                    `json:"totalCount"`
+	Items      []ArtistItems `json:"items"`
+	TotalCount int64         `json:"totalCount"`
+}
+
+type ArtistItems struct {
+	Profile struct {
+		Name string `json:"name"`
+	} `json:"profile"`
 }
 
 type OtherArtists struct {
-	Items []interface{} `json:"items"`
+	Items []ArtistItems `json:"items"`
 }
 
 type Playability struct {
@@ -87,23 +93,23 @@ type Playability struct {
 }
 
 type TrackUnion struct {
-	TypeName       string         `json:"__typename"`
-	AlbumOfTrack   AlbumOfTrack   `json:"albumOfTrack"`
-	AssociationsV3 AssociationsV3 `json:"associationsV3"`
-	ContentRating  ContentRating  `json:"contentRating"`
-	Duration       Duration       `json:"duration"`
-	FirstArtist    FirstArtist    `json:"firstArtist"`
-	Id             string         `json:"id"`
-	MediaType      string         `json:"mediaType"`
-	Name           string         `json:"name"`
-	OtherArtists   OtherArtists   `json:"otherArtists"`
-	Playability    Playability    `json:"playability"`
-	Playcount      string         `json:"playcount"`
-	Saved          bool           `json:"saved"`
-	SharingInfo    interface{}    `json:"sharingInfo"`
-	TrackNumber    int64          `json:"trackNumber"`
-	Uri            string         `json:"uri"`
-	VisualIdentity interface{}    `json:"visualIdentity"`
+	TypeName       string        `json:"__typename"`
+	AlbumOfTrack   AlbumOfTrack  `json:"albumOfTrack"`
+	Associations   Associations  `json:"associationsV3"`
+	ContentRating  ContentRating `json:"contentRating"`
+	Duration       Duration      `json:"duration"`
+	FirstArtist    FirstArtist   `json:"firstArtist"`
+	Id             string        `json:"id"`
+	MediaType      string        `json:"mediaType"`
+	Name           string        `json:"name"`
+	OtherArtists   OtherArtists  `json:"otherArtists"`
+	Playability    Playability   `json:"playability"`
+	Playcount      string        `json:"playcount"`
+	Saved          bool          `json:"saved"`
+	SharingInfo    interface{}   `json:"sharingInfo"`
+	TrackNumber    int64         `json:"trackNumber"`
+	Uri            string        `json:"uri"`
+	VisualIdentity interface{}   `json:"visualIdentity"`
 }
 
 type Data struct {

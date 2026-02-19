@@ -2,6 +2,8 @@ package lib
 
 import (
 	"errors"
+	"fmt"
+	"path"
 	"strings"
 )
 
@@ -37,4 +39,40 @@ func ParseTrackId(url string) (string, error) {
 	}
 
 	return tmp2[0], nil
+}
+
+func BuildFileName(metadata TrackMetadata) (string, error) {
+	var result string
+	var artists string
+
+	firstArtistLen := len(metadata.Data.TrackUnion.FirstArtist.Items)
+	if firstArtistLen == 0 {
+		return result, errors.New("What? This should never happen.")
+	}
+	artists = metadata.Data.TrackUnion.FirstArtist.Items[firstArtistLen-1].Profile.Name
+
+	for _, artist := range(metadata.Data.TrackUnion.OtherArtists.Items) {
+		artists += ", " + artist.Profile.Name
+	}
+
+	result = fmt.Sprintf("%s - %s", metadata.Data.TrackUnion.Name, artists)
+
+	return result, nil
+}
+
+func BuildFileOutput(outputFile string, fileName string, metadata TrackMetadata) (string, error) {
+	var result string
+
+	fileName, err := BuildFileName(metadata)
+	if err != nil {
+		return result, err
+	}
+
+	if outputFile == "" {
+		result = path.Join(DEFAULT_DOWNLOAD_OUTPUT_FOLDER, fileName)
+	} else {
+		result = outputFile
+	}
+
+	return result, nil
 }

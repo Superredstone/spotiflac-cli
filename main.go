@@ -41,7 +41,8 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
-					err := app.Download(song_url, outputFolder, service)
+					quality := "LOSSLESS"
+					err := app.Download(song_url, outputFolder, service, quality)
 					return err
 				},
 			},

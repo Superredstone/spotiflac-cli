@@ -1,5 +1,11 @@
 package lib
 
+import (
+	"io"
+	"net/http"
+	"os"
+)
+
 const (
 	DEFAULT_DOWNLOAD_SERVICE       = "tidal"
 	DEFAULT_DOWNLOAD_OUTPUT_FOLDER = "."
@@ -17,10 +23,9 @@ type DownloadRequest struct {
 	SpotifyID   string
 }
 
-func (app *App) Download(url string, outputFolder string, serviceString string) error {
-	if outputFolder == "" {
-		outputFolder = DEFAULT_DOWNLOAD_OUTPUT_FOLDER
-	}
+func (app *App) Download(url string, outputFile string, serviceString string, quality string) error {
+	var downloadUrl string
+	var fileName string
 
 	if serviceString == "" {
 		serviceString = DEFAULT_DOWNLOAD_SERVICE
@@ -33,15 +38,9 @@ func (app *App) Download(url string, outputFolder string, serviceString string) 
 
 	switch urlType {
 	case UrlTypeTrack:
-		// metadata, err := app.GetTrackMetadata(url)
-		// if err != nil {
-			// return err
-		// }
-
-		// println(metadata.Data.TrackUnion.Id)
 		songlink, err := app.ConvertSongUrl(url)
 		if err != nil {
-			return err 
+			return err
 		}
 
 		tidalId, err := app.GetTidalIdFromSonglink(songlink)
@@ -49,17 +48,47 @@ func (app *App) Download(url string, outputFolder string, serviceString string) 
 			return err
 		}
 
-		// err = app.DownloadFromTidal(tidalId)
-		url, err = app.GetTidalDownloadUrl(tidalId, "LOSSLESS")
+		downloadUrl, err = app.GetTidalDownloadUrl(tidalId, quality)
 		if err != nil {
 			return err
 		}
-		println(url)
+	}
+
+	metadata, err := app.GetTrackMetadata(url)
+	if err != nil {
+		return err
+	}
+
+	outputFile, err = BuildFileOutput(outputFile, fileName, metadata)
+	if err != nil {
+		return err
+	}
+
+	err = app.DownloadFromUrl(downloadUrl, outputFile)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (app *App) DownloadTrack(dr DownloadRequest) (bool, error) {
-	return false, nil
+func (app *App) DownloadFromUrl(url string, outputFilePath string) error {
+	outputFile, err := os.Create(outputFilePath)
+	if err != nil {
+		return err
+	}
+	defer outputFile.Close()
+
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	_, err = io.Copy(outputFile, res.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

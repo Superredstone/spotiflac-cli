@@ -55,7 +55,7 @@
             version = "2.0.0";
 
             src = ./.;
-            vendorHash = "sha256-cDJ2cu9lGyJanGYcnj6MGch+d2xfYTFgHfxnb450K8E=";
+            vendorHash = "sha256-o7NSSe1PGuASh3Whi+VrdPtLluiU5DaG5EtmLkEGJRw=";
 
             nativeBuildInputs = with pkgs; [
               installShellFiles

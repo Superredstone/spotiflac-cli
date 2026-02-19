@@ -16,8 +16,12 @@ type ExtractedColors struct {
 }
 
 type CoverArt struct {
-	ExtractedColors ExtractedColors          `json:"extractedColors"`
-	Sources         []map[string]interface{} `json:"sources"`
+	ExtractedColors ExtractedColors `json:"extractedColors"`
+	Sources         []struct {
+		Height int    `json:"height"`
+		Width  int    `json:"width"`
+		Url    string `json:"url"`
+	} `json:"sources"`
 }
 
 type Date struct {
@@ -118,4 +122,12 @@ type Data struct {
 
 type TrackMetadata struct {
 	Data Data `json:"data"`
+}
+
+type PlaylistMetadata struct {
+	Data struct {
+		Playlist struct {
+			Name string `json:"name"`
+		} `json:"playlistV2"`
+	} `json:"data"`
 }

@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -38,9 +39,18 @@ func (app *App) Download(url string, outputFile string, service string, quality 
 		if err := app.DownloadTrack(url, outputFile, service, quality); err != nil {
 			return err
 		}
+
+		return nil
+	case UrlTypePlaylist:
+		_, err := app.GetPlaylistMetadata(url)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	return nil
+	return errors.New("Invalid URL type.")
 }
 
 func (app *App) DownloadTrack(url string, outputFile, service string, quality string) error {

@@ -3,20 +3,46 @@ package lib
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
 
-	id3v2 "github.com/bogem/id3v2/v2"
+	"github.com/go-flac/flacpicture/v2"
+	"github.com/go-flac/flacvorbis/v2"
+	"github.com/go-flac/go-flac/v2"
 )
 
-func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
-	app.log("Getting metadata for " + url)
+func (app *App) GetPlaylistMetadata(url string) (PlaylistMetadata, error) {
+	app.log("Fetching playlist metadata")
 
-	client := NewSpotifyClient()
-	var result TrackMetadata
-
-	err := client.Initialize()
+	var result PlaylistMetadata
+	playlistId, err := ParseTrackId(url)
 	if err != nil {
-		return result, errors.New("Unable to fetch Spotify metadata.")
+		return result, err
 	}
+
+	payload := BuildSpotifyReqPayloadPlaylist(playlistId)
+
+	rawMetadata, err := app.SpotifyClient.Query(payload)
+	if err != nil {
+		return result, err
+	}
+
+	byteMetadata, err := json.Marshal(rawMetadata)
+	if err != nil {
+		return result, err
+	}
+
+	if err := json.Unmarshal(byteMetadata, &result); err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
+	app.log("Fetching metadata for " + url)
+
+	var result TrackMetadata
 
 	trackId, err := ParseTrackId(url)
 	if err != nil {
@@ -25,7 +51,7 @@ func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
 
 	payload := BuildSpotifyReqPayloadTrack(trackId)
 
-	rawMetadata, err := client.Query(payload)
+	rawMetadata, err := app.SpotifyClient.Query(payload)
 	if err != nil {
 		return result, err
 	}
@@ -43,10 +69,10 @@ func (app *App) PrintMetadata(url string) error {
 	return errors.New("Unimplemented.")
 }
 
-func (app *App) EmbedMetadata(file string, metadata TrackMetadata) error {
+func (app *App) EmbedMetadata(fileName string, metadata TrackMetadata) error {
 	app.log("Embedding metadata")
 
-	tag, err := id3v2.Open(file, id3v2.Options{Parse: true})
+	file, err := flac.ParseFile(fileName)
 	if err != nil {
 		return err
 	}
@@ -56,14 +82,46 @@ func (app *App) EmbedMetadata(file string, metadata TrackMetadata) error {
 		return err
 	}
 
-	tag.SetArtist(artists)
-	tag.SetTitle(metadata.Data.TrackUnion.Name)
-	tag.SetYear(string(metadata.Data.TrackUnion.AlbumOfTrack.Date.Year))
-	tag.SetAlbum(metadata.Data.TrackUnion.AlbumOfTrack.Name)
+	cmt := flacvorbis.New()
+	cmt.Add(flacvorbis.FIELD_ALBUM, metadata.Data.TrackUnion.AlbumOfTrack.Name)
+	cmt.Add(flacvorbis.FIELD_DATE, string(metadata.Data.TrackUnion.AlbumOfTrack.Date.IsoString.Year()))
+	cmt.Add(flacvorbis.FIELD_ARTIST, artists)
+	cmt.Add(flacvorbis.FIELD_TITLE, metadata.Data.TrackUnion.Name)
+	cmtBlock := cmt.Marshal()
+	file.Meta = append(file.Meta, &cmtBlock)
 
-	if err = tag.Save(); err != nil {
+	cover, err := app.GetAlbumCover(metadata)
+	if err != nil {
 		return err
 	}
 
+	picture, err := flacpicture.NewFromImageData(
+		flacpicture.PictureTypeFrontCover, "Front cover", cover, "image/jpeg")
+
+	pictureMeta := picture.Marshal()
+	file.Meta = append(file.Meta, &pictureMeta)
+	file.Save(fileName)
+
 	return nil
+}
+
+func (app *App) GetAlbumCover(metadata TrackMetadata) ([]byte, error) {
+	app.log("Embedding cover")
+
+	for _, source := range metadata.Data.TrackUnion.AlbumOfTrack.CoverArt.Sources {
+		rawResponse, err := http.Get(source.Url)
+		if err != nil {
+			continue
+		}
+		defer rawResponse.Body.Close()
+
+		response, err := io.ReadAll(rawResponse.Body)
+		if err != nil {
+			continue
+		}
+
+		return response, nil
+	}
+
+	return []byte{}, errors.New("Unable to download album cover for " + metadata.Data.TrackUnion.Name + ".")
 }

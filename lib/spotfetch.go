@@ -1835,3 +1835,43 @@ func BuildSpotifyReqPayloadTrack(trackId string) SpotifyPayload {
 
 	return payload
 }
+
+func BuildSpotifyReqPayloadPlaylist(playlistId string) SpotifyPayload {
+	payload := map[string]interface{}{
+		"variables": map[string]interface{}{
+			"uri":                       fmt.Sprintf("spotify:playlist:%s", playlistId),
+			"offset":                    0,    // No one wants to download from their playlists starting from song 158th, right?
+			"limit":                     5000, // Hope that this does not limit anyone
+			"enableWatchFeedEntrypoint": false,
+		},
+		"operationName": "fetchPlaylist",
+		"extensions": map[string]interface{}{
+			"persistedQuery": map[string]interface{}{
+				"version":    1,
+				"sha256Hash": "bb67e0af06e8d6f52b531f97468ee4acd44cd0f82b988e15c2ea47b1148efc77",
+			},
+		},
+	}
+
+	return payload
+}
+
+func BuildSpotifyReqPayloadAlbum(albumId string) SpotifyPayload {
+	payload := map[string]interface{}{
+		"variables": map[string]interface{}{
+			"uri":    fmt.Sprintf("spotify:album:%s", albumId),
+			"locale": "",
+			"offset": 0,    // No one wants to download from an album from song number 9
+			"limit":  5000, // No album will ever have more than 5000 songs, i hope
+		},
+		"operationName": "getAlbum",
+		"extensions": map[string]interface{}{
+			"persistedQuery": map[string]interface{}{
+				"version":    1,
+				"sha256Hash": "b9bfabef66ed756e5e13f68a942deb60bd4125ec1f1be8cc42769dc0259b4b10",
+			},
+		},
+	}
+
+	return payload
+}

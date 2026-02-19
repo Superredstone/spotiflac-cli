@@ -121,3 +121,13 @@ func FileExists(file string) (bool, error) {
 
 	return false, err
 }
+
+func (app *App) InitSpotifyClient() error {
+	app.SpotifyClient = NewSpotifyClient()
+
+	if err := app.SpotifyClient.Initialize(); err != nil {
+		return errors.New("Unable to fetch Spotify metadata.")
+	}
+
+	return nil
+}

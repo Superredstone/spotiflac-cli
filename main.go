@@ -5,15 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/Superredstone/spotiflac-cli/app"
-	"github.com/Superredstone/spotiflac-cli/pkg"
+	"github.com/Superredstone/spotiflac-cli/lib"
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	var output_folder, service string
+	var outputFolder, service string
 
-	application := app.NewApp()
+	app := lib.NewApp()
+	app.Init()
 
 	cmd := &cli.Command{
 		Name:                  "spotiflac-cli",
@@ -30,7 +30,7 @@ func main() {
 						Name:        "output",
 						Aliases:     []string{"o"},
 						Usage:       "set output folder",
-						Destination: &output_folder,
+						Destination: &outputFolder,
 					},
 					&cli.StringFlag{
 						Name:        "service",
@@ -41,7 +41,8 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
-					err := pkg.Download(application, song_url, output_folder, service)
+					quality := "LOSSLESS"
+					err := app.Download(song_url, outputFolder, service, quality)
 					return err
 				},
 			},
@@ -51,8 +52,16 @@ func main() {
 				Usage:   "view song metadata",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					url := cmd.Args().First()
-					return pkg.PrintMetadata(application, url)
+					return app.PrintMetadata(url)
 				},
+			},
+		},
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "verbose",
+				Aliases: []string{"v"},
+				Usage: "verbose output",
+				Destination: &app.Verbose,
 			},
 		},
 	}

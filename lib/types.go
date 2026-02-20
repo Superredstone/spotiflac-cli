@@ -128,8 +128,10 @@ type PlaylistMetadata struct {
 	Data struct {
 		Playlist struct {
 			Name    string `json:"name"`
+			Uri     string `json:"uri"`
 			Content struct {
-				Items []struct {
+				TotalCount int `json:"totalCount"`
+				Items      []struct {
 					Item struct {
 						Data struct {
 							IdentityTrait struct {
@@ -140,6 +142,16 @@ type PlaylistMetadata struct {
 					} `json:"itemV3"`
 				} `json:"items"`
 			} `json:"content"`
+			Members struct {
+				Items []struct {
+					IsOwner bool `json:"isOwner"`
+					User    struct {
+						Data struct {
+							Name string `json:"name"`
+						} `json:"data"`
+					} `json:"user"`
+				} `json:"items"`
+			} `json:"members"`
 		} `json:"playlistV2"`
 	} `json:"data"`
 }

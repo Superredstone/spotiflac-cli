@@ -3,8 +3,10 @@ package lib
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/go-flac/flacpicture/v2"
 	"github.com/go-flac/flacvorbis/v2"
@@ -66,7 +68,67 @@ func (app *App) GetTrackMetadata(url string) (TrackMetadata, error) {
 }
 
 func (app *App) PrintMetadata(url string) error {
-	return errors.New("Unimplemented.")
+	urlType, err := ParseUrlType(url)
+	if err != nil {
+		return err
+	}
+
+	switch urlType {
+	case UrlTypeTrack:
+		metadata, err := app.GetTrackMetadata(url)
+		if err != nil {
+			return err
+		}
+
+		if err = PrintTrackMetadata(metadata); err != nil {
+			return err
+		}
+
+		return nil
+	case UrlTypePlaylist:
+		metadata, err := app.GetPlaylistMetadata(url)
+		if err != nil {
+			return err
+		}
+
+		var members, owner string
+		for _, member := range metadata.Data.Playlist.Members.Items {
+			if member.IsOwner {
+				owner = member.User.Data.Name
+				continue
+			}
+
+			members += member.User.Data.Name + " "
+		}
+
+		fmt.Println(
+			"Name: " + metadata.Data.Playlist.Name + "\n" +
+				"Owner: " + owner + "\n" +
+				"Members: " + members + "\n" +
+				"Tracks: " + strconv.Itoa(metadata.Data.Playlist.Content.TotalCount),
+		)
+
+		return nil
+	}
+
+	return errors.New("Invalid URL type.")
+}
+
+func PrintTrackMetadata(metadata TrackMetadata) error {
+	artists, err := GetArtists(metadata)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(
+		"Name:\t\t" + metadata.Data.TrackUnion.Name + "\n" +
+			"Artists:\t" + artists + "\n" +
+			"Album:\t\t" + metadata.Data.TrackUnion.AlbumOfTrack.Name + "\n" +
+			"Year:\t\t" + strconv.FormatInt(metadata.Data.TrackUnion.AlbumOfTrack.Date.Year, 10) + "\n" +
+			"Spotify ID:\t" + metadata.Data.TrackUnion.Id,
+	)
+
+	return nil
 }
 
 func (app *App) EmbedMetadata(fileName string, metadata TrackMetadata) error {

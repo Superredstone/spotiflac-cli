@@ -2,9 +2,13 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path"
+	"strconv"
+	"time"
 )
 
 const (
@@ -36,14 +40,13 @@ func (app *App) Download(url string, outputFile string, service string, quality 
 
 	switch urlType {
 	case UrlTypeTrack:
-		if err := app.DownloadTrack(url, outputFile, service, quality); err != nil {
+		if err := app.DownloadTrack(url, outputFile, service, quality, false); err != nil {
 			return err
 		}
 
 		return nil
 	case UrlTypePlaylist:
-		_, err := app.GetPlaylistMetadata(url)
-		if err != nil {
+		if err := app.DownloadPlaylist(url, outputFile, service, quality); err != nil {
 			return err
 		}
 
@@ -53,7 +56,48 @@ func (app *App) Download(url string, outputFile string, service string, quality 
 	return errors.New("Invalid URL type.")
 }
 
-func (app *App) DownloadTrack(url string, outputFile, service string, quality string) error {
+func (app *App) DownloadPlaylist(url string, outputFile string, service string, quality string) error {
+	playlist, err := app.GetPlaylistMetadata(url)
+	if err != nil {
+		return err
+	}
+
+	var urls []string
+	for _, item := range playlist.Data.Playlist.Content.Items {
+		url, err := SpotifyUriToLink(item.Item.Data.Uri)
+		if err != nil {
+			return err
+		}
+
+		urls = append(urls, url)
+	}
+
+	trackListSize := len(urls)
+	for idx, url := range urls {
+		metadata, err := app.GetTrackMetadata(url)
+		if err != nil {
+			return err
+		}
+
+		artists, err := GetArtists(metadata)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("[" + strconv.Itoa(idx+1) + "/" + strconv.Itoa(trackListSize) + "] " + metadata.Data.TrackUnion.Name + " - " + artists)
+
+		if err := app.DownloadTrack(url, outputFile+"/", service, quality, true); err != nil {
+			return err
+		}
+
+		// Avoid getting rate limited
+		time.Sleep(800 * time.Millisecond)
+	}
+
+	return nil
+}
+
+func (app *App) DownloadTrack(url string, outputFile string, service string, quality string, downloadFromPlaylist bool) error {
 	songlink, err := app.ConvertSongUrl(url)
 	if err != nil {
 		return err
@@ -79,9 +123,17 @@ func (app *App) DownloadTrack(url string, outputFile, service string, quality st
 		return err
 	}
 
-	outputFile, err = BuildFileOutput(outputFile, extension, metadata)
-	if err != nil {
-		return err
+	if downloadFromPlaylist {
+		fileName, err := BuildFileName(metadata, extension)
+		if err != nil {
+			return err
+		}
+		outputFile = path.Join(outputFile, fileName)
+	} else {
+		outputFile, err = BuildFileOutput(outputFile, extension, metadata)
+		if err != nil {
+			return err
+		}
 	}
 
 	fileExists, err := FileExists(outputFile)

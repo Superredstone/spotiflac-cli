@@ -127,7 +127,19 @@ type TrackMetadata struct {
 type PlaylistMetadata struct {
 	Data struct {
 		Playlist struct {
-			Name string `json:"name"`
+			Name    string `json:"name"`
+			Content struct {
+				Items []struct {
+					Item struct {
+						Data struct {
+							IdentityTrait struct {
+								Name string `json:"name"`
+							} `json:"identityTrait"`
+							Uri string `json:"uri"`
+						} `json:"data"`
+					} `json:"itemV3"`
+				} `json:"items"`
+			} `json:"content"`
 		} `json:"playlistV2"`
 	} `json:"data"`
 }

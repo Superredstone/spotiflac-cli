@@ -15,6 +15,10 @@ const (
 	UrlTypePlaylist
 )
 
+const (
+	BASE_SPOTIFY_TRACK_URL = "https://open.spotify.com/track/"
+)
+
 func ParseUrlType(url string) (UrlType, error) {
 	if strings.Contains(url, "https://open.spotify.com/track") {
 		return UrlTypeTrack, nil
@@ -130,4 +134,14 @@ func (app *App) InitSpotifyClient() error {
 	}
 
 	return nil
+}
+
+func SpotifyUriToLink(uri string) (string, error) {
+	spotifyId := strings.Split(uri, ":")	
+
+	if len(spotifyId) != 3 {
+		return "", errors.New("Invalid URI parsed.")
+	}
+
+	return BASE_SPOTIFY_TRACK_URL + spotifyId[2], nil
 }

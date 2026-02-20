@@ -40,7 +40,11 @@ func (app *App) Download(url string, outputFile string, service string, quality 
 
 	switch urlType {
 	case UrlTypeTrack:
-		if err := app.DownloadTrack(url, outputFile, service, quality, false); err != nil {
+		outputFileRune := []rune(outputFile)
+		lastCharacter := string(outputFileRune[len(outputFileRune)-1:])
+		downloadInFolder := lastCharacter == "/"
+
+		if err := app.DownloadTrack(url, outputFile, service, quality, downloadInFolder); err != nil {
 			return err
 		}
 
@@ -97,7 +101,7 @@ func (app *App) DownloadPlaylist(url string, outputFile string, service string, 
 	return nil
 }
 
-func (app *App) DownloadTrack(url string, outputFile string, service string, quality string, downloadFromPlaylist bool) error {
+func (app *App) DownloadTrack(url string, outputFile string, service string, quality string, downloadInFolder bool) error {
 	songlink, err := app.ConvertSongUrl(url)
 	if err != nil {
 		return err
@@ -123,7 +127,7 @@ func (app *App) DownloadTrack(url string, outputFile string, service string, qua
 		return err
 	}
 
-	if downloadFromPlaylist {
+	if downloadInFolder {
 		fileName, err := BuildFileName(metadata, extension)
 		if err != nil {
 			return err

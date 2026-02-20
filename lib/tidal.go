@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+var ErrTidalUrlNotFound = errors.New("Tidal URL not found.")
+
 func (app *App) LoadTidalApis() error {
 	var found bool
 
@@ -119,11 +121,15 @@ func (app *App) ParseTidalManifestFromBase64(manifestBase64 string) (TidalManife
 	err = json.Unmarshal(manifestDecoded, &result)
 	if err != nil {
 		return result, err
-	} 
+	}
 
 	return result, nil
 }
 
 func (app *App) GetTidalIdFromSonglink(songlink SongLinkResponse) (string, error) {
+	if songlink.LinksByPlatform.Tidal == nil {
+		return "", ErrTidalUrlNotFound
+	}
+
 	return ParseTrackId(songlink.LinksByPlatform.Tidal.Url)
 }

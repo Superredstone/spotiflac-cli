@@ -101,18 +101,61 @@ func (app *App) DownloadPlaylist(url string, outputFile string, service string, 
 	return nil
 }
 
+func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, songlink SongLinkResponse) (string, error) {
+	servicesToTry := []string{}
+
+	switch askedService {
+	default:
+	case "tidal":
+		servicesToTry = []string{"tidal", "amazon", "qoboz"}
+		break
+	case "amazon":
+		servicesToTry = []string{"amazon", "tidal", "qoboz"}
+		break
+	case "quoboz":
+		servicesToTry = []string{"quoboz", "tidal", "amazon"}
+		break
+	}
+
+	var downloadUrl string
+	var lastError error
+	for _, service := range servicesToTry {
+		switch service {
+		case "tidal":
+			if songlink.LinksByPlatform.Tidal == nil {
+				continue
+			}
+
+			tidalId, err := app.GetTidalIdFromSonglink(songlink)
+			if err != nil {
+				lastError = err
+				continue
+			}
+
+			downloadUrl, err = app.GetTidalDownloadUrl(tidalId, quality)
+			if err != nil {
+				lastError = err
+				continue
+			}
+
+			break
+		}
+	}
+
+	if lastError != nil || downloadUrl == "" {
+		return "", errors.New("Unable to download from any source.")
+	}
+
+	return downloadUrl, nil
+}
+
 func (app *App) DownloadTrack(url string, outputFile string, service string, quality string, downloadInFolder bool) error {
 	songlink, err := app.ConvertSongUrl(url)
 	if err != nil {
 		return err
 	}
 
-	tidalId, err := app.GetTidalIdFromSonglink(songlink)
-	if err != nil {
-		return err
-	}
-
-	downloadUrl, err := app.GetTidalDownloadUrl(tidalId, quality)
+	downloadUrl, err := app.GetDownloadUrlOrFallback(service, quality, songlink)
 	if err != nil {
 		return err
 	}

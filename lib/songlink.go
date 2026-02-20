@@ -20,8 +20,8 @@ type SongLinkResponse struct {
 }
 
 type LinksByPlatform struct {
-	Deezer LinkByPlatform `json:"deezer"`
-	Tidal  LinkByPlatform `json:"tidal"`
+	Deezer *LinkByPlatform `json:"deezer,omitempty"`
+	Tidal  *LinkByPlatform `json:"tidal,omitempty"`
 }
 
 type LinkByPlatform struct {

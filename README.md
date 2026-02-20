@@ -8,19 +8,18 @@ Spotify downloader with playlist sync in mind.
 
 ## Usage 
 ```bash
-spotiflac-cli download [URL]
+spotiflac-cli download [URL] -v -o ~/Music/song.flac
 ```
 
-## How to install 
+## How to build 
 1) Clone the repo
 ```bash
-git clone https://github.com/Superredstone/spotiflac-cli
+git clone https://github.com/Superredstone/spotiflac-cli && cd spotiflac-cli/
 ```
-2) Download the required libraries
+2) Build 
 ```bash
-./tools/fetch_spotiflac_backend.sh
+go build .
 ```
-3) Go get all the dependencies
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

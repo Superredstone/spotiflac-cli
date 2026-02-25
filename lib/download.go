@@ -112,8 +112,8 @@ func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, so
 	case "amazon":
 		servicesToTry = []string{"amazon", "tidal", "qoboz"}
 		break
-	case "quoboz":
-		servicesToTry = []string{"quoboz", "tidal", "amazon"}
+	case "qoboz":
+		servicesToTry = []string{"qoboz", "tidal", "amazon"}
 		break
 	}
 

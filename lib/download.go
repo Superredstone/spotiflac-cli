@@ -107,13 +107,7 @@ func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, so
 	switch askedService {
 	default:
 	case "tidal":
-		servicesToTry = []string{"tidal", "amazon", "qoboz"}
-		break
-	case "amazon":
-		servicesToTry = []string{"amazon", "tidal", "qoboz"}
-		break
-	case "qoboz":
-		servicesToTry = []string{"qoboz", "tidal", "amazon"}
+		servicesToTry = []string{"tidal"}
 		break
 	}
 

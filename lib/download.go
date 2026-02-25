@@ -119,7 +119,11 @@ func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, so
 
 	var downloadUrl string
 	var lastError error
-	for _, service := range servicesToTry {
+	for idx, service := range servicesToTry {
+		if idx > 0 {
+			app.log("Falling back to " + service)
+		}
+
 		switch service {
 		case "tidal":
 			if songlink.LinksByPlatform.Tidal == nil {

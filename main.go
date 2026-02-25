@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	var outputFolder, service string
+	outputFolder := "" 
+	service := ""
 
 	app := lib.NewApp()
 	app.Init()

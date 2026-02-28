@@ -100,7 +100,11 @@ func (app *App) DownloadPlaylist(url string, outputFile string, service string, 
 		fmt.Println("[" + strconv.Itoa(idx+1) + "/" + strconv.Itoa(trackListSize) + "] " + metadata.Data.TrackUnion.Name + " - " + artists)
 
 		if err := app.DownloadTrack(url, outputFile+"/", service, quality, true, metadata); err != nil {
-			return err
+			if app.StopOnFail {
+				return err
+			}
+
+			app.log("Failed download")
 		}
 
 		// Avoid getting rate limited

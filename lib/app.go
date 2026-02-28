@@ -6,6 +6,7 @@ type App struct {
 	SpotifyClient       *SpotifyClient
 	ApiInterval         int // How many ms to wait between one call to apis and the other
 	NoFallback          bool
+	StopOnFail          bool
 }
 
 func NewApp() App {

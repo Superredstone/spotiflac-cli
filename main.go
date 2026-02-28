@@ -57,6 +57,12 @@ func main() {
 						DefaultText: strconv.FormatBool(app.NoFallback),
 						Destination: &app.NoFallback,
 					},
+					&cli.BoolFlag{
+						Name:        "stop-on-fail",
+						Usage:       "continue on download failure",
+						DefaultText: strconv.FormatBool(app.StopOnFail),
+						Destination: &app.StopOnFail,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()

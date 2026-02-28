@@ -7,6 +7,7 @@ type App struct {
 	ApiInterval         int // How many ms to wait between one call to apis and the other
 	NoFallback          bool
 	StopOnFail          bool
+	OverrideDownload    bool
 }
 
 func NewApp() App {

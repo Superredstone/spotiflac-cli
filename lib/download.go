@@ -199,7 +199,7 @@ func (app *App) DownloadTrack(url string, outputFile string, service string, qua
 		return err
 	}
 
-	if fileExists {
+	if fileExists && !app.OverrideDownload {
 		app.log("File " + outputFile + " already exists")
 		return nil
 	}

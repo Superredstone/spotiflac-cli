@@ -54,14 +54,17 @@ func main() {
 					&cli.BoolFlag{
 						Name:        "no-fallback",
 						Usage:       "do not fallback in case a source is not found",
-						DefaultText: strconv.FormatBool(app.NoFallback),
 						Destination: &app.NoFallback,
 					},
 					&cli.BoolFlag{
 						Name:        "stop-on-fail",
 						Usage:       "continue on download failure",
-						DefaultText: strconv.FormatBool(app.StopOnFail),
 						Destination: &app.StopOnFail,
+					},
+					&cli.BoolFlag{
+						Name:        "override",
+						Usage:       "override already downloaded songs",
+						Destination: &app.OverrideDownload,
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {

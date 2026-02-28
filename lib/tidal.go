@@ -10,12 +10,10 @@ import (
 	"strings"
 )
 
-var ErrTidalUrlNotFound = errors.New("Tidal URL not found.")
-
 func (app *App) LoadTidalApis() error {
 	var found bool
 
-	for _, url := range app.GetAvailableApis() {
+	for _, url := range app.GetAvailableTidalApis() {
 		res, err := http.Get(url)
 		if err != nil {
 			continue
@@ -35,7 +33,7 @@ func (app *App) LoadTidalApis() error {
 	return nil
 }
 
-func (app *App) GetAvailableApis() []string {
+func (app *App) GetAvailableTidalApis() []string {
 	// TODO: Make this load from a JSON file inside of $HOME/.config/spotiflac-cli/apis.json
 	return []string{
 		"https://triton.squid.wtf",
@@ -64,14 +62,7 @@ type TidalAPIResponseV2 struct {
 func (app *App) GetTidalDownloadUrl(tidalId string, quality string) (string, error) {
 	url := fmt.Sprintf("%s/track/?id=%s&quality=%s", app.SelectedTidalApiUrl, tidalId, quality)
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Set("User-Agent", app.UserAgent)
-
-	rawResponse, err := http.DefaultClient.Do(req)
+	rawResponse, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
@@ -126,10 +117,10 @@ func (app *App) ParseTidalManifestFromBase64(manifestBase64 string) (TidalManife
 	return result, nil
 }
 
-func (app *App) GetTidalIdFromSonglink(songlink SongLinkResponse) (string, error) {
-	if songlink.LinksByPlatform.Tidal == nil {
-		return "", ErrTidalUrlNotFound
+func (app *App) GetIdFromSonglink(songlink SongLinkResponse) (string, error) {
+	if songlink.LinksByPlatform.Tidal != nil {
+		return ParseTrackId(songlink.LinksByPlatform.Tidal.Url)
 	}
 
-	return ParseTrackId(songlink.LinksByPlatform.Tidal.Url)
+	return "", errors.New("No link found.")
 }

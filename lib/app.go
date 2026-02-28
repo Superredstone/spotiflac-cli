@@ -1,27 +1,29 @@
 package lib
 
 type App struct {
-	UserAgent           string // User agent used for scraping requests
 	SelectedTidalApiUrl string
 	Verbose             bool
 	SpotifyClient       *SpotifyClient
-	ApiInterval           int // How many ms to wait between one call to apis and the other
+	ApiInterval         int // How many ms to wait between one call to apis and the other
+	NoFallback          bool
 }
 
 func NewApp() App {
 	return App{
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-		Verbose:   false,
+		Verbose:     false,
 		ApiInterval: 800,
+		NoFallback:  false,
 	}
 }
 
 func (app *App) Init() error {
+	app.log("Initializing Tidal")
 	err := app.LoadTidalApis()
 	if err != nil {
 		return err
 	}
 
+	app.log("Initializing Spotify")
 	if err := app.InitSpotifyClient(); err != nil {
 		return err
 	}

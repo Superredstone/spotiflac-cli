@@ -137,11 +137,21 @@ func (app *App) InitSpotifyClient() error {
 }
 
 func SpotifyUriToLink(uri string) (string, error) {
-	spotifyId := strings.Split(uri, ":")	
+	spotifyId := strings.Split(uri, ":")
 
 	if len(spotifyId) != 3 {
 		return "", errors.New("Invalid URI parsed.")
 	}
 
 	return BASE_SPOTIFY_TRACK_URL + spotifyId[2], nil
+}
+
+func IsPathDirectory(path string) bool {
+	pathRune := []rune(path)
+	if len(pathRune) == 0 {
+		return false
+	}
+
+	lastCharacter := string(pathRune[len(pathRune)-1:])
+	return lastCharacter == "/"
 }

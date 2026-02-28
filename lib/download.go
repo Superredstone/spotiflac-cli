@@ -40,11 +40,20 @@ func (app *App) Download(url string, outputFile string, service string, quality 
 
 	switch urlType {
 	case UrlTypeTrack:
-		outputFileRune := []rune(outputFile)
-		lastCharacter := string(outputFileRune[len(outputFileRune)-1:])
-		downloadInFolder := lastCharacter == "/"
+		metadata, err := app.GetTrackMetadata(url)
+		if err != nil {
+			return err
+		}
 
-		if err := app.DownloadTrack(url, outputFile, service, quality, downloadInFolder); err != nil {
+		isDir := IsPathDirectory(outputFile)
+		if outputFile == "" && !isDir {
+			outputFile, err = BuildFileName(metadata, "flac")
+			if err != nil {
+				return err
+			}
+		}
+
+		if err := app.DownloadTrack(url, outputFile, service, quality, isDir, metadata); err != nil {
 			return err
 		}
 
@@ -90,7 +99,7 @@ func (app *App) DownloadPlaylist(url string, outputFile string, service string, 
 
 		fmt.Println("[" + strconv.Itoa(idx+1) + "/" + strconv.Itoa(trackListSize) + "] " + metadata.Data.TrackUnion.Name + " - " + artists)
 
-		if err := app.DownloadTrack(url, outputFile+"/", service, quality, true); err != nil {
+		if err := app.DownloadTrack(url, outputFile+"/", service, quality, true, metadata); err != nil {
 			return err
 		}
 
@@ -111,11 +120,22 @@ func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, so
 		break
 	}
 
+	// This could have been implemented in a more clear way
+	if app.NoFallback {
+		servicesToTry = []string{servicesToTry[0]}
+	}
+
 	var downloadUrl string
 	var lastError error
 	for idx, service := range servicesToTry {
 		if idx > 0 {
 			app.log("Falling back to " + service)
+		}
+
+		songId, err := app.GetIdFromSonglink(songlink)
+		if err != nil {
+			lastError = err
+			continue
 		}
 
 		switch service {
@@ -124,13 +144,7 @@ func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, so
 				continue
 			}
 
-			tidalId, err := app.GetTidalIdFromSonglink(songlink)
-			if err != nil {
-				lastError = err
-				continue
-			}
-
-			downloadUrl, err = app.GetTidalDownloadUrl(tidalId, quality)
+			downloadUrl, err = app.GetTidalDownloadUrl(songId, quality)
 			if err != nil {
 				lastError = err
 				continue
@@ -147,18 +161,13 @@ func (app *App) GetDownloadUrlOrFallback(askedService string, quality string, so
 	return downloadUrl, nil
 }
 
-func (app *App) DownloadTrack(url string, outputFile string, service string, quality string, downloadInFolder bool) error {
+func (app *App) DownloadTrack(url string, outputFile string, service string, quality string, downloadInFolder bool, metadata TrackMetadata) error {
 	songlink, err := app.ConvertSongUrl(url)
 	if err != nil {
 		return err
 	}
 
 	downloadUrl, err := app.GetDownloadUrlOrFallback(service, quality, songlink)
-	if err != nil {
-		return err
-	}
-
-	metadata, err := app.GetTrackMetadata(url)
 	if err != nil {
 		return err
 	}

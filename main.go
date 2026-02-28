@@ -15,7 +15,10 @@ func main() {
 	service := ""
 
 	app := lib.NewApp()
-	app.Init()
+	err := app.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	cmd := &cli.Command{
 		Name:                  "spotiflac-cli",
@@ -31,21 +34,28 @@ func main() {
 					&cli.StringFlag{
 						Name:        "output",
 						Aliases:     []string{"o"},
-						Usage:       "set output folder",
+						Usage:       "set output folder/file",
+						DefaultText: outputFolder,
 						Destination: &outputFolder,
 					},
 					&cli.StringFlag{
 						Name:        "service",
 						Aliases:     []string{"s"},
-						Usage:       "set service to tidal/amazon/qobuz (FFmpeg is required for amazon and qobuz)",
+						Usage:       "set default service (only tidal is supported at the moment)",
 						Destination: &service,
 					},
 					&cli.IntFlag{
-						Name: "interval",
-						Aliases: []string{"i"},
-						Usage: "interval between api requests in milliseconds",
+						Name:        "interval",
+						Aliases:     []string{"i"},
+						Usage:       "interval between api requests in milliseconds",
 						DefaultText: strconv.Itoa(app.ApiInterval),
 						Destination: &app.ApiInterval,
+					},
+					&cli.BoolFlag{
+						Name:        "no-fallback",
+						Usage:       "do not fallback in case a source is not found",
+						DefaultText: strconv.FormatBool(app.NoFallback),
+						Destination: &app.NoFallback,
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {

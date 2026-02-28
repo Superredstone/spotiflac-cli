@@ -95,7 +95,7 @@ func (app *App) DownloadPlaylist(url string, outputFile string, service string, 
 		}
 
 		// Avoid getting rate limited
-		time.Sleep(800 * time.Millisecond)
+		time.Sleep(time.Duration(app.ApiInterval) * time.Millisecond)
 	}
 
 	return nil

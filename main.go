@@ -4,13 +4,14 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/Superredstone/spotiflac-cli/lib"
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	outputFolder := "" 
+	outputFolder := ""
 	service := ""
 
 	app := lib.NewApp()
@@ -39,6 +40,13 @@ func main() {
 						Usage:       "set service to tidal/amazon/qobuz (FFmpeg is required for amazon and qobuz)",
 						Destination: &service,
 					},
+					&cli.IntFlag{
+						Name: "interval",
+						Aliases: []string{"i"},
+						Usage: "interval between api requests in milliseconds",
+						DefaultText: strconv.Itoa(app.ApiInterval),
+						Destination: &app.ApiInterval,
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
@@ -59,9 +67,9 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:    "verbose",
-				Aliases: []string{"v"},
-				Usage: "verbose output",
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Usage:       "verbose output",
 				Destination: &app.Verbose,
 			},
 		},

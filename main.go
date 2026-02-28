@@ -61,7 +61,7 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:        "stop-on-fail",
-						Usage:       "continue on download failure",
+						Usage:       "stop on download failure",
 						Destination: &app.StopOnFail,
 					},
 					&cli.BoolFlag{

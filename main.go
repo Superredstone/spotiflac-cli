@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/Superredstone/spotiflac-cli/lib"
 	"github.com/urfave/cli/v3"
@@ -16,7 +17,9 @@ func main() {
 
 	app := lib.NewApp()
 	err := app.Init()
-	if err != nil {
+
+	// Ignore this check for nix builds
+	if err != nil && !strings.Contains(os.Args[0], "/nix/store/") {
 		log.Fatal(err)
 	}
 

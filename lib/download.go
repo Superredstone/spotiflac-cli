@@ -75,29 +75,35 @@ func (app *App) DownloadPlaylist(url string, outputFile string, service string, 
 		return err
 	}
 
-	var urls []string
-	for _, item := range playlist.Data.Playlist.Content.Items {
-		url, err := SpotifyUriToLink(item.Item.Data.Uri)
+	playlistItems := playlist.GetPlaylistItems()
+	trackListSize := len(playlistItems)
+	for idx, item := range playlistItems {
+		artists := item.GetArtists()
+		fileName := outputFile + fmt.Sprintf(FILE_NAME_FORMAT, item.Item.Data.IdentityTrait.Name, artists, "flac")
+
+		fmt.Println("[" + strconv.Itoa(idx+1) + "/" + strconv.Itoa(trackListSize) + "] " + item.Item.Data.IdentityTrait.Name + " - " + artists)
+
+		songExists, err := FileExists(fileName)
 		if err != nil {
-			return err
+			if app.StopOnFail {
+				return err
+			}
+			continue
 		}
 
-		urls = append(urls, url)
-	}
+		if songExists && !app.OverrideDownload {
+			app.log("Song " + fileName + " already exists")
+			continue
+		}
 
-	trackListSize := len(urls)
-	for idx, url := range urls {
+		url, err := SpotifyUriToLink(item.Item.Data.Uri)
 		metadata, err := app.GetTrackMetadata(url)
 		if err != nil {
-			return err
+			if app.StopOnFail {
+				return err
+			}
+			continue
 		}
-
-		artists, err := GetArtists(metadata)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("[" + strconv.Itoa(idx+1) + "/" + strconv.Itoa(trackListSize) + "] " + metadata.Data.TrackUnion.Name + " - " + artists)
 
 		if err := app.DownloadTrack(url, outputFile+"/", service, quality, true, metadata); err != nil {
 			if app.StopOnFail {

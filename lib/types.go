@@ -130,17 +130,8 @@ type PlaylistMetadata struct {
 			Name    string `json:"name"`
 			Uri     string `json:"uri"`
 			Content struct {
-				TotalCount int `json:"totalCount"`
-				Items      []struct {
-					Item struct {
-						Data struct {
-							IdentityTrait struct {
-								Name string `json:"name"`
-							} `json:"identityTrait"`
-							Uri string `json:"uri"`
-						} `json:"data"`
-					} `json:"itemV3"`
-				} `json:"items"`
+				TotalCount int             `json:"totalCount"`
+				Items      []PlaylistItems `json:"items"`
 			} `json:"content"`
 			Members struct {
 				Items []struct {
@@ -154,4 +145,38 @@ type PlaylistMetadata struct {
 			} `json:"members"`
 		} `json:"playlistV2"`
 	} `json:"data"`
+}
+
+type PlaylistItems struct {
+	Item struct {
+		Data struct {
+			IdentityTrait struct {
+				Name         string `json:"name"`
+				Contributors struct {
+					Items []struct {
+						Name string `json:"name"`
+					}
+				} `json:"contributors"`
+			} `json:"identityTrait"`
+			Uri string `json:"uri"`
+		} `json:"data"`
+	} `json:"itemV3"`
+}
+
+func (metadata *PlaylistMetadata) GetPlaylistItems() []PlaylistItems {
+	return metadata.Data.Playlist.Content.Items
+}
+
+func (playlistItem *PlaylistItems) GetArtists() string {
+	var result = ""
+	for idx, artist := range playlistItem.Item.Data.IdentityTrait.Contributors.Items {
+		if idx == len(playlistItem.Item.Data.IdentityTrait.Contributors.Items)-1 {
+			result += artist.Name
+			continue
+		}
+
+		result += artist.Name + ", "
+	}
+
+	return result
 }

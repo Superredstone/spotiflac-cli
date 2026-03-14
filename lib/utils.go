@@ -46,6 +46,8 @@ func ParseTrackId(url string) (string, error) {
 	return tmp2[0], nil
 }
 
+const FILE_NAME_FORMAT = "%s - %s.%s"
+
 func BuildFileName(metadata TrackMetadata, extension string) (string, error) {
 	var result string
 
@@ -54,7 +56,7 @@ func BuildFileName(metadata TrackMetadata, extension string) (string, error) {
 		return result, err
 	}
 
-	result = fmt.Sprintf("%s - %s.%s", metadata.Data.TrackUnion.Name, artists, extension)
+	result = fmt.Sprintf(FILE_NAME_FORMAT, metadata.Data.TrackUnion.Name, artists, extension)
 
 	return result, nil
 }

@@ -4,16 +4,24 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
-	"github.com/Superredstone/spotiflac-cli/app"
-	"github.com/Superredstone/spotiflac-cli/pkg"
+	"github.com/Superredstone/spotiflac-cli/lib"
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	var output_folder, service string
+	outputFolder := ""
+	service := ""
 
-	application := app.NewApp()
+	app := lib.NewApp()
+	err := app.Init()
+
+	// Ignore this check for nix builds
+	if err != nil && !strings.Contains(os.Args[0], "/nix/store/") {
+		log.Fatal(err)
+	}
 
 	cmd := &cli.Command{
 		Name:                  "spotiflac-cli",
@@ -29,19 +37,43 @@ func main() {
 					&cli.StringFlag{
 						Name:        "output",
 						Aliases:     []string{"o"},
-						Usage:       "set output folder",
-						Destination: &output_folder,
+						Usage:       "set output folder/file",
+						DefaultText: outputFolder,
+						Destination: &outputFolder,
 					},
 					&cli.StringFlag{
 						Name:        "service",
 						Aliases:     []string{"s"},
-						Usage:       "set service to tidal/amazon/qobuz (FFmpeg is required for amazon and qobuz)",
+						Usage:       "set default service (only tidal is supported at the moment)",
 						Destination: &service,
+					},
+					&cli.IntFlag{
+						Name:        "interval",
+						Aliases:     []string{"i"},
+						Usage:       "interval between api requests in milliseconds",
+						DefaultText: strconv.Itoa(app.ApiInterval),
+						Destination: &app.ApiInterval,
+					},
+					&cli.BoolFlag{
+						Name:        "no-fallback",
+						Usage:       "do not fallback in case a source is not found",
+						Destination: &app.NoFallback,
+					},
+					&cli.BoolFlag{
+						Name:        "stop-on-fail",
+						Usage:       "stop on download failure",
+						Destination: &app.StopOnFail,
+					},
+					&cli.BoolFlag{
+						Name:        "override",
+						Usage:       "override already downloaded songs",
+						Destination: &app.OverrideDownload,
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					song_url := cmd.Args().First()
-					err := pkg.Download(application, song_url, output_folder, service)
+					quality := "LOSSLESS"
+					err := app.Download(song_url, outputFolder, service, quality)
 					return err
 				},
 			},
@@ -51,8 +83,16 @@ func main() {
 				Usage:   "view song metadata",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					url := cmd.Args().First()
-					return pkg.PrintMetadata(application, url)
+					return app.PrintMetadata(url)
 				},
+			},
+		},
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Aliases:     []string{"v"},
+				Usage:       "verbose output",
+				Destination: &app.Verbose,
 			},
 		},
 	}

@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/Superredstone/spotiflac-cli/app"
+	backend "github.com/Superredstone/spotiflac-cli/lib"
 )
 
 const (
@@ -30,6 +32,14 @@ func Download(application *app.App, url string, output_folder string, service st
 
 		if !isInstalled {
 			return errors.New("FFmpeg is not installed.")
+		}
+	}
+
+	// Tidal alone can bypass the community proxy via a persisted custom API URL; the others
+	// always go through it, so only check the shared cooldown when that bypass isn't set.
+	if service != "tidal" || strings.TrimSpace(backend.GetCustomTidalAPISetting()) == "" {
+		if status, ok := application.GetCommunityBreakStatuses()[service]; ok && status.Available && status.IsBreak {
+			return fmt.Errorf("%s community service is on a scheduled break, try again in ~%d minute(s)", service, status.RemainingMinutes)
 		}
 	}
 

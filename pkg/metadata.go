@@ -32,6 +32,19 @@ type MetadataTrack struct {
 	IsExplicit   bool   `json:"is_explicit"`
 }
 
+type MetadataAlbum struct {
+	TrackList []MetadataTrack   `json:"track_list"`
+	Info      MetadataAlbumInfo `json:"album_info"`
+}
+
+type MetadataAlbumInfo struct {
+	TotalTracks int    `json:"total_tracks"`
+	Name        string `json:"name"`
+	ReleaseDate string `json:"release_date"`
+	Artists     string `json:"artists"`
+	Images      string `json:"images"`
+}
+
 type MetadataPlaylist struct {
 	TrackList []MetadataTrack      `json:"track_list"`
 	Info      MetadataPlaylistInfo `json:"playlist_info"`
@@ -53,7 +66,7 @@ type MetadataPlaylistOwner struct {
 	Images string `json:"images"`
 }
 
-func GetMetadata[T MetadataPlaylist | MetadataSong](application *app.App, url string) (T, error) {
+func GetMetadata[T MetadataPlaylist | MetadataSong | MetadataAlbum](application *app.App, url string) (T, error) {
 	var result T
 
 	metadataRequest := app.SpotifyMetadataRequest{
@@ -112,6 +125,26 @@ Cover: %s`
 			metadata.Info.Owner.Owner,
 			metadata.Info.Tracks.Total,
 			metadata.Info.Cover)
+		fmt.Println(msg)
+
+		return nil
+	case UrlTypeAlbum:
+		metadata, err := GetMetadata[MetadataAlbum](application, url)
+		if err != nil {
+			return err
+		}
+
+		unformatted := `Name: %s
+Artist: %s
+Release date: %s
+Tracks: %d
+Images: %s`
+		msg := fmt.Sprintf(unformatted,
+			metadata.Info.Name,
+			metadata.Info.Artists,
+			metadata.Info.ReleaseDate,
+			metadata.Info.TotalTracks,
+			metadata.Info.Images)
 		fmt.Println(msg)
 
 		return nil

@@ -87,6 +87,35 @@ func Download(application *app.App, url string, output_folder string, service st
 		}
 
 		return nil
+	case UrlTypeAlbum:
+		metadata, err := GetMetadata[MetadataAlbum](application, url)
+		if err != nil {
+			return err
+		}
+
+		trackListSize := strconv.Itoa(len(metadata.TrackList))
+		for idx, track := range metadata.TrackList {
+			fmt.Println("[" + strconv.Itoa(idx+1) + "/" + trackListSize + "] " + track.Name + " - " + track.Artists)
+
+			downloadRequest := app.DownloadRequest{
+				Service:     service,
+				TrackName:   track.Name,
+				ArtistName:  track.Artists,
+				AlbumName:   track.AlbumName,
+				AlbumArtist: track.AlbumArtist,
+				ReleaseDate: track.ReleaseDate,
+				CoverURL:    track.Images,
+				OutputDir:   output_folder,
+				SpotifyID:   track.SpotifyID,
+			}
+
+			_, err = application.DownloadTrack(downloadRequest)
+			if err != nil {
+				fmt.Println("Unable to download " + track.Name + " - " + track.Artists)
+			}
+		}
+
+		return nil
 	}
 
 	return errors.New("Invalid URL.")
